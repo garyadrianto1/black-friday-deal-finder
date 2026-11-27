@@ -12,6 +12,18 @@ export function discountOf(d) {
   return Math.round((d.usual - d.sale) / d.usual * 100);
 }
 
+export function savingsOf(d) {
+  return Math.round((d.usual - d.sale) * 100) / 100;
+}
+
+export function saveMoney(n) {
+  return Number.isInteger(n) ? '$' + n : '$' + n.toFixed(2);
+}
+
+export function moneyTotal(n) {
+  return '$' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
 const VERDICT_CLASS = { 'NEW LOW': 'newlow', STRONG: 'strong', ROUTINE: 'routine', INFLATED: 'inflated' };
 
 export function verdictChip(d) {
@@ -37,8 +49,9 @@ export function cardHtml(d, featured) {
     + '<div class="price-row"><span class="sale">' + money(d.sale) + '</span>'
     + '<span class="usual">' + money(d.usual) + '</span>'
     + '<span class="off">' + off + '% off</span></div>'
+    + '<div class="save">You save ' + saveMoney(savingsOf(d)) + '</div>'
     + verdictChip(d) + warn
-    + (featured ? '<p class="evidence">' + esc(d.evidence) + '</p>' : '')
+    + '<p class="evidence">' + esc(d.evidence) + '</p>'
     + meta
     + '<a class="store-link" href="' + esc(d.url) + '" target="_blank" rel="noopener">View at ' + esc(d.store) + ' ↗</a>'
     + '</article>';
@@ -101,6 +114,7 @@ export function homeHtml(state, filtered) {
   const best = bestDeals(DEALS);
   const bestOff = Math.max(...DEALS.map(discountOf));
   const storeCount = new Set(DEALS.map(d => d.store)).size;
+  const totalSave = DEALS.reduce((s, d) => s + Math.round((d.usual - d.sale) * 100), 0) / 100;
   let html = '<section class="hero"><div class="wrap">'
     + '<h1>Real Black Friday deals, checked today</h1>'
     + '<p>' + DEALS.length + ' deals from ' + storeCount + ' stores — every price read live on 27 Nov 2026, each with an honest verdict.</p>'
@@ -108,6 +122,7 @@ export function homeHtml(state, filtered) {
     + '<div class="stat"><b>' + DEALS.length + '</b><span>deals checked</span></div>'
     + '<div class="stat"><b>' + storeCount + '</b><span>stores</span></div>'
     + '<div class="stat"><b>' + bestOff + '%</b><span>biggest discount</span></div>'
+    + '<div class="stat"><b>' + moneyTotal(totalSave) + '</b><span>total savings</span></div>'
     + '<div class="stat"><b>27 Nov 2026</b><span>all prices checked</span></div>'
     + '</div></div></section>'
     + '<div class="wrap"><div id="home-body">'
